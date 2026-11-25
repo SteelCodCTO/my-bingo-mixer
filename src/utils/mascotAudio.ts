@@ -1,3 +1,5 @@
+export const MASCOT_AUDIO_EXT = 'mp3';
+
 export function mascotAudioSlug(line: string): string {
   return line
     .toLowerCase()
@@ -7,5 +9,5 @@ export function mascotAudioSlug(line: string): string {
 }
 
 export function mascotAudioUrl(line: string, base: string = import.meta.env.BASE_URL): string {
-  return `${base}audio/larry/${mascotAudioSlug(line)}.m4a`;
+  return `${base}audio/larry/${mascotAudioSlug(line)}.${MASCOT_AUDIO_EXT}`;
 }

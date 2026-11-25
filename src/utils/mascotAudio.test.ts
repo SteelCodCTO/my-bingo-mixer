@@ -4,7 +4,7 @@ import { MASCOT_GREETING, MARK_LINES, BINGO_LINES } from '../data/mascotLines';
 
 const allLines = [MASCOT_GREETING, ...MARK_LINES, ...BINGO_LINES];
 // Lazy glob: only the matched paths are used, the clips are never loaded.
-const clipPaths = new Set(Object.keys(import.meta.glob('/public/audio/larry/*.m4a')));
+const clipPaths = new Set(Object.keys(import.meta.glob('/public/audio/larry/*.mp3')));
 
 describe('mascotAudio', () => {
   it('slugifies lines into safe file names', () => {
@@ -13,7 +13,7 @@ describe('mascotAudio', () => {
   });
 
   it('builds URLs under the given base path', () => {
-    expect(mascotAudioUrl('Wicked!', '/repo/game/')).toBe('/repo/game/audio/larry/wicked.m4a');
+    expect(mascotAudioUrl('Wicked!', '/repo/game/')).toBe('/repo/game/audio/larry/wicked.mp3');
   });
 
   it('gives every mascot line a unique slug', () => {
@@ -24,7 +24,7 @@ describe('mascotAudio', () => {
 
   it('has a generated clip for every mascot line (run `npm run audio:larry` if this fails)', () => {
     const missing = allLines.filter(
-      (line) => !clipPaths.has(`/public/audio/larry/${mascotAudioSlug(line)}.m4a`)
+      (line) => !clipPaths.has(`/public/audio/larry/${mascotAudioSlug(line)}.mp3`)
     );
     expect(missing).toEqual([]);
   });

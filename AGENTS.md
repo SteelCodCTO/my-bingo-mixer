@@ -20,7 +20,7 @@ Mobile-first social bingo game: React 19 + TypeScript + Vite 8 + Tailwind CSS 4,
 - Board is 5x5 with the free space at index 12 (pre-marked, not toggleable). `generateBoard()` takes 24 questions, so `questions` must contain **at least 24** entries.
 - Game state persists to `localStorage` (`bingo-game-state`). `validateStoredData()` in the hook whitelists line types and board shape. When adding a new `BingoLine` type (e.g. `'corners'`) or changing stored shape, update the validator and bump `STORAGE_VERSION`.
 - `BingoLine['type']` already includes `'corners'`, but `checkBingo()` does not implement it yet.
-- Larry's voice clips in `public/audio/larry/` are generated from [src/data/mascotLines.ts](src/data/mascotLines.ts). After changing lines, regenerate them with `npm run audio:larry` (Piper TTS + macOS `afconvert`; the script prints setup steps). `mascotAudio.test.ts` fails if a clip is missing.
+- Larry's voice clips in `public/audio/larry/` are generated from [src/data/mascotLines.ts](src/data/mascotLines.ts). After changing lines, regenerate them with `npm run audio:larry` (Piper TTS + lameenc MP3; setup via `.github/skills/larry-audio/scripts/setup-piper.sh`). `mascotAudio.test.ts` fails if a clip is missing. Preview every clip at `/soundboard.html` (dev only, not in the build).
 - Vite `base` switches to `/<repo>/game/` when `VITE_REPO_NAME` is set (GitHub Pages deploy). Use relative asset paths.
 
 ## Styling

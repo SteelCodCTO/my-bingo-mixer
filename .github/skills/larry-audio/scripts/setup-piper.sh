@@ -6,13 +6,14 @@ VENV="${PIPER_VENV:-/tmp/piper-venv}"
 VOICES="${PIPER_VOICES:-/tmp/piper-voices}"
 VOICE="${PIPER_VOICE:-en_US-ryan-high}"
 
-command -v afconvert >/dev/null || { echo "afconvert not found (macOS only)" >&2; exit 1; }
+command -v python3 >/dev/null || { echo "python3 not found" >&2; exit 1; }
 
 if [[ ! -x "$VENV/bin/piper" ]]; then
   python3 -m venv "$VENV"
   "$VENV/bin/pip" install -q --upgrade pip
   "$VENV/bin/pip" install -q piper-tts
 fi
+"$VENV/bin/python" -c "import lameenc" 2>/dev/null || "$VENV/bin/pip" install -q lameenc
 
 if [[ ! -f "$VOICES/$VOICE.onnx" ]]; then
   mkdir -p "$VOICES"
