@@ -1,8 +1,9 @@
 interface StartScreenProps {
   onStart: () => void;
+  onStartDeck: () => void;
 }
 
-export function StartScreen({ onStart }: StartScreenProps) {
+export function StartScreen({ onStart, onStartDeck }: StartScreenProps) {
   return (
     <div className="sunburst flex flex-col min-h-full">
       <div className="stripes-70s h-6 shrink-0" aria-hidden="true" />
@@ -37,6 +38,13 @@ export function StartScreen({ onStart }: StartScreenProps) {
             className="animate-rise [animation-delay:400ms] w-full bg-berry text-snow font-display text-2xl py-4 px-8 rounded-full border-2 border-ink hard-shadow transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none"
           >
             Pass the Bingo
+          </button>
+
+          <button
+            onClick={onStartDeck}
+            className="animate-rise [animation-delay:500ms] w-full mt-4 bg-snow text-ink font-display text-xl py-3 px-8 rounded-full border-2 border-ink hard-shadow transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none"
+          >
+            Shuffle the Deck
           </button>
         </div>
       </main>

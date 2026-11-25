@@ -2,6 +2,7 @@ import { useBingoGame } from './hooks/useBingoGame';
 import { StartScreen } from './components/StartScreen';
 import { GameScreen } from './components/GameScreen';
 import { BingoModal } from './components/BingoModal';
+import { CardDeckScreen } from './components/CardDeckScreen';
 
 function App() {
   const {
@@ -12,7 +13,14 @@ function App() {
     mascotLine,
     mascotKey,
     soundOn,
+    currentCard,
+    cardKey,
+    foundCount,
+    skippedCount,
     startGame,
+    startDeck,
+    drawCard,
+    resolveCard,
     handleSquareClick,
     resetGame,
     dismissModal,
@@ -20,7 +28,21 @@ function App() {
   } = useBingoGame();
 
   if (gameState === 'start') {
-    return <StartScreen onStart={startGame} />;
+    return <StartScreen onStart={startGame} onStartDeck={startDeck} />;
+  }
+
+  if (gameState === 'deck') {
+    return (
+      <CardDeckScreen
+        currentCard={currentCard}
+        cardKey={cardKey}
+        foundCount={foundCount}
+        skippedCount={skippedCount}
+        onDraw={drawCard}
+        onResolve={resolveCard}
+        onBack={resetGame}
+      />
+    );
   }
 
   return (

@@ -9,6 +9,7 @@ import {
 import { pickLine } from '../utils/mascotLogic';
 import { MASCOT_GREETING, MARK_LINES, BINGO_LINES } from '../data/mascotLines';
 import { playLarry, stopLarry } from '../utils/larryVoice';
+import { questions } from '../data/questions';
 
 export interface BingoGameState {
   gameState: GameState;
@@ -19,10 +20,17 @@ export interface BingoGameState {
   mascotLine: string;
   mascotKey: number;
   soundOn: boolean;
+  currentCard: string | null;
+  cardKey: number;
+  foundCount: number;
+  skippedCount: number;
 }
 
 export interface BingoGameActions {
   startGame: () => void;
+  startDeck: () => void;
+  drawCard: () => void;
+  resolveCard: (result: 'found' | 'skipped') => void;
   handleSquareClick: (squareId: number) => void;
   resetGame: () => void;
   dismissModal: () => void;
@@ -60,7 +68,7 @@ function validateStoredData(data: unknown): data is StoredGameData {
     return false;
   }
   
-  if (typeof obj.gameState !== 'string' || !['start', 'playing', 'bingo'].includes(obj.gameState)) {
+  if (typeof obj.gameState !== 'string' || !['start', 'playing', 'bingo', 'deck'].includes(obj.gameState)) {
     return false;
   }
   
@@ -170,6 +178,10 @@ export function useBingoGame(): BingoGameState & BingoGameActions {
   const [mascotLine, setMascotLine] = useState(MASCOT_GREETING);
   const [mascotKey, setMascotKey] = useState(0);
   const [soundOn, setSoundOn] = useState(loadSoundOn);
+  const [currentCard, setCurrentCard] = useState<string | null>(null);
+  const [cardKey, setCardKey] = useState(0);
+  const [foundCount, setFoundCount] = useState(0);
+  const [skippedCount, setSkippedCount] = useState(0);
   const spokenKeyRef = useRef(mascotKey);
 
   // Only speak after a tap changes the line; browsers block speech before a user gesture.
@@ -223,6 +235,29 @@ export function useBingoGame(): BingoGameState & BingoGameActions {
     greet();
   }, [greet]);
 
+  const startDeck = useCallback(() => {
+    setBoard([]);
+    setWinningLine(null);
+    setCurrentCard(null);
+    setFoundCount(0);
+    setSkippedCount(0);
+    setGameState('deck');
+  }, []);
+
+  const drawCard = useCallback(() => {
+    setCurrentCard((previous) => pickLine(questions, previous));
+    setCardKey((key) => key + 1);
+  }, []);
+
+  const resolveCard = useCallback((result: 'found' | 'skipped') => {
+    if (result === 'found') {
+      setFoundCount((count) => count + 1);
+    } else {
+      setSkippedCount((count) => count + 1);
+    }
+    drawCard();
+  }, [drawCard]);
+
   const handleSquareClick = useCallback((squareId: number) => {
     const target = board.find((square) => square.id === squareId);
     if (!target || target.isFreeSpace) {
@@ -248,6 +283,7 @@ export function useBingoGame(): BingoGameState & BingoGameActions {
     setBoard([]);
     setWinningLine(null);
     setShowBingoModal(false);
+    setCurrentCard(null);
     greet();
   }, [greet]);
 
@@ -264,7 +300,14 @@ export function useBingoGame(): BingoGameState & BingoGameActions {
     mascotLine,
     mascotKey,
     soundOn,
+    currentCard,
+    cardKey,
+    foundCount,
+    skippedCount,
     startGame,
+    startDeck,
+    drawCard,
+    resolveCard,
     handleSquareClick,
     resetGame,
     dismissModal,
