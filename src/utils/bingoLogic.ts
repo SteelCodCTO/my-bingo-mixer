@@ -98,6 +98,8 @@ function getWinningLines(): BingoLine[] {
     squares: [4, 8, 12, 16, 20],
   });
 
+  lines.push({ type: 'corners', index: 0, squares: [0, 4, 20, 24] });
+
   return lines;
 }
 
@@ -123,4 +125,21 @@ export function checkBingo(board: BingoSquareData[]): BingoLine | null {
 export function getWinningSquareIds(line: BingoLine | null): Set<number> {
   if (!line) return new Set();
   return new Set(line.squares);
+}
+
+/**
+ * Get unmarked squares sharing a winning line with the given square
+ */
+export function getHintSquareIds(board: BingoSquareData[], squareId: number): Set<number> {
+  const hints = new Set<number>();
+  if (board[squareId]?.isFreeSpace) return hints;
+
+  for (const line of getWinningLines()) {
+    if (!line.squares.includes(squareId)) continue;
+    for (const idx of line.squares) {
+      if (idx !== squareId && !board[idx].isMarked) hints.add(idx);
+    }
+  }
+
+  return hints;
 }

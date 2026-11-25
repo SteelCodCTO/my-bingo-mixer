@@ -3,10 +3,22 @@ import type { BingoSquareData } from '../types';
 interface BingoSquareProps {
   square: BingoSquareData;
   isWinning: boolean;
+  isHint: boolean;
+  isHovered: boolean;
   onClick: () => void;
+  onHoverStart: () => void;
+  onHoverEnd: () => void;
 }
 
-export function BingoSquare({ square, isWinning, onClick }: BingoSquareProps) {
+export function BingoSquare({
+  square,
+  isWinning,
+  isHint,
+  isHovered,
+  onClick,
+  onHoverStart,
+  onHoverEnd,
+}: BingoSquareProps) {
   const baseClasses =
     'relative flex flex-col items-center justify-center p-1 text-center border-2 rounded-xl transition-all duration-150 select-none min-h-[60px] text-[11px] leading-tight font-semibold';
 
@@ -17,14 +29,29 @@ export function BingoSquare({ square, isWinning, onClick }: BingoSquareProps) {
     : square.isMarked
       ? isWinning
         ? 'bg-pine border-ink text-snow animate-wobble'
-        : 'bg-marked border-berry text-ink'
-      : 'bg-snow border-ink/40 text-ink active:scale-95 active:bg-frost';
+        : `bg-marked ${isHovered ? 'border-ink' : 'border-berry'} text-ink`
+      : isHovered
+        ? 'bg-snow border-ink text-ink active:scale-95 active:bg-frost'
+        : isHint
+          ? 'bg-frost/50 border-pine/50 text-ink active:scale-95'
+          : 'bg-snow border-ink/40 text-ink active:scale-95 active:bg-frost';
+
+  const hoverClasses =
+    isHovered && !square.isFreeSpace
+      ? ' -translate-y-0.5 shadow-[2px_2px_0_var(--color-ink)] motion-reduce:transform-none'
+      : '';
 
   return (
     <button
       onClick={onClick}
+      onMouseEnter={onHoverStart}
+      onMouseLeave={onHoverEnd}
+      onFocus={onHoverStart}
+      onBlur={onHoverEnd}
+      data-hint={isHint ? 'true' : undefined}
+      data-hovered={isHovered ? 'true' : undefined}
       disabled={square.isFreeSpace}
-      className={`${baseClasses} ${stateClasses}`}
+      className={`${baseClasses} ${stateClasses}${hoverClasses}`}
       aria-pressed={square.isMarked}
       aria-label={square.isFreeSpace ? 'Free space' : square.text}
     >

@@ -4,6 +4,7 @@ import {
   toggleSquare,
   checkBingo,
   getWinningSquareIds,
+  getHintSquareIds,
   type BingoSquareData,
 } from './bingoLogic';
 import { questions, FREE_SPACE } from '../data/questions';
@@ -304,6 +305,45 @@ describe('bingoLogic', () => {
       });
       expect(checkBingo(board)).toBeNull();
     });
+
+    describe('four corners', () => {
+      it('should detect four corners when squares 0, 4, 20, 24 are marked', () => {
+        const board = generateBoard();
+        [0, 4, 20, 24].forEach((i) => {
+          board[i].isMarked = true;
+        });
+        expect(checkBingo(board)).toEqual({
+          type: 'corners',
+          index: 0,
+          squares: [0, 4, 20, 24],
+        });
+      });
+
+      it('should return null when only 3 corners are marked', () => {
+        const combos = [
+          [0, 4, 20],
+          [0, 4, 24],
+          [0, 20, 24],
+          [4, 20, 24],
+        ];
+        combos.forEach((corners) => {
+          const board = generateBoard();
+          corners.forEach((i) => {
+            board[i].isMarked = true;
+          });
+          expect(checkBingo(board)).toBeNull();
+        });
+      });
+
+      it('should not require the free space to win with four corners', () => {
+        const board = generateBoard();
+        board[12].isMarked = false;
+        [0, 4, 20, 24].forEach((i) => {
+          board[i].isMarked = true;
+        });
+        expect(checkBingo(board)?.type).toBe('corners');
+      });
+    });
   });
 
   describe('getWinningSquareIds', () => {
@@ -356,6 +396,91 @@ describe('bingoLogic', () => {
         expect(result.has(id)).toBe(true);
       });
     });
+
+    it('should return exactly the four corner IDs for a detected corners win', () => {
+      const board = generateBoard();
+      [0, 4, 20, 24].forEach((i) => {
+        board[i].isMarked = true;
+      });
+      const result = getWinningSquareIds(checkBingo(board));
+      expect(result).toEqual(new Set([0, 4, 20, 24]));
+    });
+  });
+
+  describe('getHintSquareIds', () => {
+    const makeBoard = (markedIds: number[] = []): BingoSquareData[] =>
+      Array.from({ length: 25 }, (_, i) => ({
+        id: i,
+        text: i === 12 ? FREE_SPACE : `Q${i}`,
+        isMarked: i === 12 || markedIds.includes(i),
+        isFreeSpace: i === 12,
+      }));
+
+    it('should return a Set', () => {
+      expect(getHintSquareIds(makeBoard(), 0)).toBeInstanceOf(Set);
+    });
+
+    it('should return row, column, diagonal and corner squares for corner square 0 on a fresh board', () => {
+      const result = getHintSquareIds(makeBoard(), 0);
+      expect(result).toEqual(new Set([1, 2, 3, 4, 5, 10, 15, 20, 6, 18, 24]));
+    });
+
+    it('should return row and column squares (excluding marked free space) for non-diagonal square 7', () => {
+      const result = getHintSquareIds(makeBoard(), 7);
+      expect(result).toEqual(new Set([2, 5, 6, 8, 9, 17, 22]));
+    });
+
+    it('should include anti-diagonal and corners for corner square 4', () => {
+      const result = getHintSquareIds(makeBoard(), 4);
+      expect(result).toEqual(new Set([0, 1, 2, 3, 9, 14, 19, 24, 8, 16, 20]));
+    });
+
+    it('should not include the hovered square itself', () => {
+      expect(getHintSquareIds(makeBoard(), 0).has(0)).toBe(false);
+      expect(getHintSquareIds(makeBoard(), 7).has(7)).toBe(false);
+    });
+
+    it('should never include the marked free space', () => {
+      expect(getHintSquareIds(makeBoard(), 6).has(12)).toBe(false);
+      expect(getHintSquareIds(makeBoard(), 2).has(12)).toBe(false);
+    });
+
+    it('should exclude already-marked squares', () => {
+      const result = getHintSquareIds(makeBoard([1, 5]), 0);
+      expect(result.has(1)).toBe(false);
+      expect(result.has(5)).toBe(false);
+      expect(result).toEqual(new Set([2, 3, 4, 10, 15, 20, 6, 18, 24]));
+    });
+
+    it('should return an empty set for the free space', () => {
+      const result = getHintSquareIds(makeBoard(), 12);
+      expect(result).toBeInstanceOf(Set);
+      expect(result.size).toBe(0);
+    });
+
+    it('should return an empty set when every related square is marked', () => {
+      const all = Array.from({ length: 25 }, (_, i) => i);
+      expect(getHintSquareIds(makeBoard(all), 0).size).toBe(0);
+    });
+
+    it('should still return hints when the hovered square itself is marked', () => {
+      const result = getHintSquareIds(makeBoard([7]), 7);
+      expect(result).toEqual(new Set([2, 5, 6, 8, 9, 17, 22]));
+    });
+
+    it('should not mutate the board', () => {
+      const board = makeBoard([1, 5]);
+      const snapshot = structuredClone(board);
+      const squareRefs = [...board];
+      getHintSquareIds(board, 0);
+      expect(board).toEqual(snapshot);
+      board.forEach((square, i) => expect(square).toBe(squareRefs[i]));
+    });
+
+    it('should work with a board from generateBoard', () => {
+      const result = getHintSquareIds(generateBoard(), 7);
+      expect(result).toEqual(new Set([2, 5, 6, 8, 9, 17, 22]));
+    });
   });
 
   describe('integration: generateBoard + toggleSquare + checkBingo', () => {
@@ -396,6 +521,16 @@ describe('bingoLogic', () => {
       expect(line).not.toBeNull();
       const ids = getWinningSquareIds(line);
       expect(ids).toEqual(new Set(lastRowIds));
+    });
+
+    it('should detect four corners after toggling all corners and lose it when one is untoggled', () => {
+      let current = generateBoard();
+      [0, 4, 20, 24].forEach((i) => {
+        current = toggleSquare(current, i);
+      });
+      expect(checkBingo(current)?.type).toBe('corners');
+      current = toggleSquare(current, 24);
+      expect(checkBingo(current)).toBeNull();
     });
   });
 });

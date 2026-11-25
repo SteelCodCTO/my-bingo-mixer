@@ -1,4 +1,6 @@
+import { useMemo, useState } from 'react';
 import type { BingoSquareData } from '../types';
+import { getHintSquareIds } from '../utils/bingoLogic';
 import { BingoSquare } from './BingoSquare';
 
 interface BingoBoardProps {
@@ -8,6 +10,12 @@ interface BingoBoardProps {
 }
 
 export function BingoBoard({ board, winningSquareIds, onSquareClick }: BingoBoardProps) {
+  const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const hintSquareIds = useMemo(
+    () => (hoveredId === null ? new Set<number>() : getHintSquareIds(board, hoveredId)),
+    [board, hoveredId]
+  );
+
   return (
     <div className="grid grid-cols-5 gap-1.5 w-full max-w-md mx-auto aspect-square p-2 bg-frost border-2 border-ink rounded-2xl hard-shadow">
       {board.map((square) => (
@@ -15,7 +23,13 @@ export function BingoBoard({ board, winningSquareIds, onSquareClick }: BingoBoar
           key={square.id}
           square={square}
           isWinning={winningSquareIds.has(square.id)}
+          isHint={hintSquareIds.has(square.id)}
+          isHovered={hoveredId === square.id}
           onClick={() => onSquareClick(square.id)}
+          onHoverStart={() => {
+            if (!square.isFreeSpace) setHoveredId(square.id);
+          }}
+          onHoverEnd={() => setHoveredId(null)}
         />
       ))}
     </div>
