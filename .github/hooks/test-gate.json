@@ -1,11 +1,12 @@
 {
+  "version": 1,
   "hooks": {
-    "Stop": [
+    "agentStop": [
       {
         "type": "command",
-        "command": "bash .github/hooks/test-gate.sh",
-        "windows": "powershell -NoProfile -File .github\\hooks\\test-gate.ps1",
-        "timeout": 120
+        "bash": "bash .github/hooks/test-gate.sh",
+        "powershell": "powershell -NoProfile -File .github\\hooks\\test-gate.ps1",
+        "timeoutSec": 120
       }
     ]
   }

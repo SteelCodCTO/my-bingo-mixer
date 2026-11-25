@@ -6,7 +6,7 @@ $HookInput = [Console]::In.ReadToEnd() | ConvertFrom-Json
 
 # Prevent infinite loops: if the agent is already retrying from a previous stop hook, let it stop.
 if ($HookInput.stop_hook_active -eq $true) {
-    Write-Output '{"hookSpecificOutput":{"hookEventName":"Stop"}}'
+    Write-Output '{}'
     exit 0
 }
 
@@ -14,9 +14,9 @@ if ($HookInput.stop_hook_active -eq $true) {
 try {
     npm test 2>&1 | Out-Null
     if ($LASTEXITCODE -ne 0) { throw "tests failed" }
-    Write-Output '{"hookSpecificOutput":{"hookEventName":"Stop"}}'
+    Write-Output '{}'
     exit 0
 } catch {
-    Write-Output '{"hookSpecificOutput":{"hookEventName":"Stop","decision":"block","reason":"Tests are failing. Fix the implementation until all tests pass before finishing."}}'
+    Write-Output '{"decision":"block","reason":"Tests are failing. Fix the implementation until all tests pass before finishing."}'
     exit 0
 }
