@@ -1,3 +1,5 @@
+import { MARK_LINES } from '../data/mascotLines';
+
 interface LobsterMascotProps {
   line: string;
   lineKey: number;
@@ -6,6 +8,8 @@ interface LobsterMascotProps {
 const OUTLINE = 'var(--color-ink)';
 
 export function LobsterMascot({ line, lineKey }: LobsterMascotProps) {
+  // Per-tap quips would make screen readers chatty; announce only greetings and celebrations.
+  const announce = !MARK_LINES.includes(line);
   return (
     <div className="flex items-end gap-2 w-full max-w-md mx-auto px-1">
       <div className="shrink-0 animate-bob motion-reduce:animate-none">
@@ -66,9 +70,14 @@ export function LobsterMascot({ line, lineKey }: LobsterMascotProps) {
         </svg>
       </div>
 
-      <div className="relative flex-1 mb-6" aria-live="polite">
+      {/* Reserve two lines so changing quips don't nudge the board above. */}
+      <div className="relative flex-1 mb-6 min-h-16 flex flex-col justify-end">
+        <p className="sr-only" aria-live="polite">
+          {announce ? line : ''}
+        </p>
         <p
           key={lineKey}
+          aria-hidden="true"
           className="animate-pop motion-reduce:animate-none origin-bottom-left relative bg-snow border-2 border-ink rounded-2xl rounded-bl-sm px-3 py-2 font-display text-base leading-snug text-ink hard-shadow"
         >
           {line}

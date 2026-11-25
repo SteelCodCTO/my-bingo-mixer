@@ -88,6 +88,19 @@ describe('useBingoGame', () => {
     expect(reloaded.result.current.mascotLine).toBe(result.current.mascotLine);
   });
 
+  it('syncs state written by another tab', () => {
+    const { result, tap } = setup();
+    tap(0);
+    const other = { ...JSON.parse(localStorage.getItem('bingo-game-state')!), gameState: 'start', board: [] };
+
+    act(() => {
+      window.dispatchEvent(new StorageEvent('storage', { key: 'bingo-game-state', newValue: JSON.stringify(other) }));
+    });
+
+    expect(result.current.gameState).toBe('start');
+    expect(result.current.board).toEqual([]);
+  });
+
   it('closes the modal and deals a fresh board on startGame', () => {
     const { result, tap } = setup();
     tap(0, 1, 2, 3, 4);

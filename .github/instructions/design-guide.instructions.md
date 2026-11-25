@@ -41,7 +41,7 @@ Retro 70s Christmas card, with Boston flavor. Green, white, and red with a touch
 ## Mascot: Larry the Lobstah
 
 - Larry is an inline SVG in [LobsterMascot.tsx](../../src/components/LobsterMascot.tsx): a flat-shaded lobster (`berry` body, `ruby` tail and claw arms) with ink outlines (`strokeWidth` 2.5) in a berry Santa hat with a snow brim and pom-pom.
-- Lines live in [mascotLines.ts](../../src/data/mascotLines.ts). The SVG is `aria-hidden`, and the speech bubble sits inside a stable `aria-live="polite"` wrapper.
+- Lines live in [mascotLines.ts](../../src/data/mascotLines.ts). The SVG and visible bubble are `aria-hidden`; a stable `sr-only` `aria-live="polite"` region announces greetings and celebrations only (not per-tap `MARK_LINES`).
 - Larry's voice plays pre-generated Piper TTS clips from `public/audio/larry/` via [larryVoice.ts](../../src/utils/larryVoice.ts). If a clip is missing, it falls back to browser speech ([speech.ts](../../src/utils/speech.ts)). The header 🔊 button mutes it. Only play audio in response to a tap; browsers block audio before a user gesture. Write lines phonetically ("staht", "keepah") so the voice sounds Boston, and run `npm run audio:larry` after editing lines.
 
 ## Accessibility

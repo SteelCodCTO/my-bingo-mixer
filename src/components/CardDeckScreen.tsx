@@ -1,4 +1,4 @@
-import { useState, useRef, type PointerEvent } from 'react';
+import { useState, useRef, type PointerEvent, type TransitionEvent } from 'react';
 import { LobsterMascot } from './LobsterMascot';
 
 type CardResult = 'found' | 'skipped';
@@ -20,6 +20,8 @@ interface CardDeckScreenProps {
 }
 
 const SWIPE_THRESHOLD = 90;
+const FLICK_MIN_DISTANCE = 40;
+const FLICK_MIN_VELOCITY = 0.5; // px per ms
 
 export function CardDeckScreen({
   currentCard,
@@ -38,26 +40,49 @@ export function CardDeckScreen({
 }: CardDeckScreenProps) {
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const [exitDir, setExitDir] = useState<1 | -1 | null>(null);
+  const [snapping, setSnapping] = useState(false);
   const startX = useRef(0);
+  const lastMove = useRef({ x: 0, t: 0, v: 0 });
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (!currentCard) return;
+    if (!currentCard || exitDir) return;
     startX.current = event.clientX;
+    lastMove.current = { x: event.clientX, t: event.timeStamp, v: 0 };
     setDragging(true);
     event.currentTarget.setPointerCapture(event.pointerId);
   };
 
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
     if (!dragging) return;
+    const { x, t } = lastMove.current;
+    const dt = event.timeStamp - t;
+    if (dt > 0) lastMove.current = { x: event.clientX, t: event.timeStamp, v: (event.clientX - x) / dt };
     setDragX(event.clientX - startX.current);
   };
 
   const handlePointerEnd = () => {
     if (!dragging) return;
     setDragging(false);
+    const { v } = lastMove.current;
+    const flicked = Math.abs(dragX) >= FLICK_MIN_DISTANCE && Math.abs(v) >= FLICK_MIN_VELOCITY && Math.sign(v) === Math.sign(dragX);
+    if (Math.abs(dragX) > SWIPE_THRESHOLD || flicked) {
+      const dir = dragX > 0 ? 1 : -1;
+      setExitDir(dir);
+      setDragX(dir * window.innerWidth);
+    } else {
+      setDragX(0);
+    }
+  };
+
+  const handleTransitionEnd = (event: TransitionEvent<HTMLDivElement>) => {
+    if (!exitDir || event.target !== event.currentTarget) return;
+    onResolve(exitDir > 0 ? 'found' : 'skipped');
+    setExitDir(null);
+    // Jump back to center without animating; the next card flips in instead.
+    setSnapping(true);
     setDragX(0);
-    if (dragX > SWIPE_THRESHOLD) onResolve('found');
-    else if (dragX < -SWIPE_THRESHOLD) onResolve('skipped');
+    requestAnimationFrame(() => requestAnimationFrame(() => setSnapping(false)));
   };
 
   const handlePointerCancel = () => {
@@ -75,12 +100,12 @@ export function CardDeckScreen({
       : 'Tap the deck to draw your first card.';
 
   return (
-    <div className="sunburst flex flex-col min-h-full">
+    <div className="sunburst flex flex-col min-h-full overflow-x-hidden">
       <div className="stripes-70s h-3 shrink-0" aria-hidden="true" />
       <header className="flex items-center justify-between px-3 py-2 border-b-2 border-ink bg-snow/80">
         <button
           onClick={onBack}
-          className="text-ink text-sm font-semibold px-3 py-1.5 rounded-full border-2 border-ink bg-frost active:bg-gold"
+          className="min-h-11 text-ink text-sm font-semibold px-4 rounded-full border-2 border-ink bg-frost active:bg-gold"
         >
           <span aria-hidden="true">← </span>Back
         </button>
@@ -144,8 +169,9 @@ export function CardDeckScreen({
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerEnd}
               onPointerCancel={handlePointerCancel}
+              onTransitionEnd={handleTransitionEnd}
               style={{ transform: `translateX(${dragX}px) rotate(${dragX / 15}deg)` }}
-              className={`absolute inset-0 touch-pan-y select-none ${dragging ? '' : 'transition-transform duration-200'} ${currentCard ? 'cursor-grab active:cursor-grabbing' : ''}`}
+              className={`absolute inset-0 touch-pan-y select-none ${dragging || snapping ? '' : 'transition-transform duration-200'} ${currentCard ? 'cursor-grab active:cursor-grabbing' : ''}`}
             >
             {currentCard ? (
               <div
@@ -218,6 +244,7 @@ export function CardDeckScreen({
             <div className="animate-rise flex gap-3 w-full">
               <button
                 onClick={() => onResolve('skipped')}
+                disabled={exitDir !== null}
                 className="flex-1 bg-ruby text-snow font-display text-lg py-3 rounded-full border-2 border-ink hard-shadow transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-snow"
               >
                 <span aria-hidden="true">← </span>Pass
@@ -226,6 +253,7 @@ export function CardDeckScreen({
                 // Drawing unmounts the deck button, so hand focus to the main action.
                 autoFocus
                 onClick={() => onResolve('found')}
+                disabled={exitDir !== null}
                 className="flex-1 bg-pine text-snow font-display text-lg py-3 rounded-full border-2 border-ink hard-shadow transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none focus-visible:outline-snow"
               >
                 Found 'em<span aria-hidden="true"> →</span>

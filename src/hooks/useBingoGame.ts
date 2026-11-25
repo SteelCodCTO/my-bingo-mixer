@@ -282,6 +282,32 @@ export function useBingoGame(): BingoGameState & BingoGameActions {
     });
   }, [gameState, board, winningLines, hasCelebrated, showBingoModal, mascotLine, deckOrder, deckIndex, foundCards, skippedCount]);
 
+  // Keep other open tabs in sync instead of letting the last writer silently win.
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (event.key !== STORAGE_KEY || !event.newValue) return;
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(event.newValue);
+      } catch {
+        return;
+      }
+      if (!validateStoredData(parsed)) return;
+      setGameState(parsed.gameState);
+      setBoard(parsed.board);
+      setWinningLines(parsed.winningLines);
+      setHasCelebrated(parsed.hasCelebrated);
+      setShowBingoModal(parsed.showBingoModal);
+      setMascotLine(parsed.mascotLine);
+      setDeckOrder(parsed.deckOrder);
+      setDeckIndex(parsed.deckIndex);
+      setFoundCards(parsed.foundCards);
+      setSkippedCount(parsed.skippedCount);
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
   const startGame = useCallback(() => {
     setBoard(generateBoard());
     setWinningLines([]);
