@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { BingoBoard } from './BingoBoard';
 import type { BingoSquareData } from '../types';
 
@@ -24,6 +24,20 @@ const squareButton = (id: number) =>
 const hintedButtons = () =>
   screen.getAllByRole('button').filter((b) => b.getAttribute('data-hint') === 'true');
 
+const hover = (el: HTMLElement) => fireEvent.pointerEnter(el, { pointerType: 'mouse' });
+const unhover = (el: HTMLElement) => fireEvent.pointerLeave(el, { pointerType: 'mouse' });
+const keyboardFocus = (el: HTMLElement) => act(() => el.focus());
+const keyboardBlur = (el: HTMLElement) => act(() => el.blur());
+
+describe('BingoBoard touch', () => {
+  it('should not show hover or hints for touch pointers', () => {
+    renderBoard();
+    fireEvent.pointerEnter(squareButton(0), { pointerType: 'touch' });
+    expect(hintedButtons()).toHaveLength(0);
+    expect(squareButton(0)).not.toHaveAttribute('data-hovered');
+  });
+});
+
 describe('BingoBoard hover hints', () => {
   it('should not show any hints initially', () => {
     renderBoard();
@@ -32,7 +46,7 @@ describe('BingoBoard hover hints', () => {
 
   it('should mark hint squares with data-hint="true" on mouseEnter', () => {
     renderBoard();
-    fireEvent.mouseEnter(squareButton(0));
+    hover(squareButton(0));
     HINTS_FOR_0.forEach((id) => {
       expect(squareButton(id)).toHaveAttribute('data-hint', 'true');
     });
@@ -41,25 +55,25 @@ describe('BingoBoard hover hints', () => {
 
   it('should not hint squares outside the hovered square lines', () => {
     renderBoard();
-    fireEvent.mouseEnter(squareButton(0));
+    hover(squareButton(0));
     expect(squareButton(7)).not.toHaveAttribute('data-hint', 'true');
   });
 
   it('should not hint the hovered square itself', () => {
     renderBoard();
-    fireEvent.mouseEnter(squareButton(0));
+    hover(squareButton(0));
     expect(squareButton(0)).not.toHaveAttribute('data-hint', 'true');
   });
 
   it('should not hint the free space', () => {
     renderBoard();
-    fireEvent.mouseEnter(squareButton(6));
+    hover(squareButton(6));
     expect(squareButton(12)).not.toHaveAttribute('data-hint', 'true');
   });
 
   it('should not hint already-marked squares', () => {
     renderBoard(makeBoard([1, 5]));
-    fireEvent.mouseEnter(squareButton(0));
+    hover(squareButton(0));
     expect(squareButton(1)).not.toHaveAttribute('data-hint', 'true');
     expect(squareButton(5)).not.toHaveAttribute('data-hint', 'true');
     expect(squareButton(2)).toHaveAttribute('data-hint', 'true');
@@ -67,16 +81,16 @@ describe('BingoBoard hover hints', () => {
 
   it('should clear all hints on mouseLeave', () => {
     renderBoard();
-    fireEvent.mouseEnter(squareButton(0));
-    fireEvent.mouseLeave(squareButton(0));
+    hover(squareButton(0));
+    unhover(squareButton(0));
     expect(hintedButtons()).toHaveLength(0);
   });
 
   it('should update hints when hovering a different square', () => {
     renderBoard();
-    fireEvent.mouseEnter(squareButton(0));
-    fireEvent.mouseLeave(squareButton(0));
-    fireEvent.mouseEnter(squareButton(7));
+    hover(squareButton(0));
+    unhover(squareButton(0));
+    hover(squareButton(7));
     const ids = [2, 5, 6, 8, 9, 17, 22];
     ids.forEach((id) => {
       expect(squareButton(id)).toHaveAttribute('data-hint', 'true');
@@ -86,7 +100,7 @@ describe('BingoBoard hover hints', () => {
 
   it('should show hints on focus (keyboard accessibility)', () => {
     renderBoard();
-    fireEvent.focus(squareButton(0));
+    keyboardFocus(squareButton(0));
     HINTS_FOR_0.forEach((id) => {
       expect(squareButton(id)).toHaveAttribute('data-hint', 'true');
     });
@@ -96,8 +110,8 @@ describe('BingoBoard hover hints', () => {
 
   it('should clear hints on blur', () => {
     renderBoard();
-    fireEvent.focus(squareButton(0));
-    fireEvent.blur(squareButton(0));
+    keyboardFocus(squareButton(0));
+    keyboardBlur(squareButton(0));
     expect(hintedButtons()).toHaveLength(0);
   });
 });
@@ -108,44 +122,44 @@ const hoveredButtons = () =>
 describe('hovered square', () => {
   it('should set data-hovered="true" only on the square under mouseEnter', () => {
     renderBoard();
-    fireEvent.mouseEnter(squareButton(0));
+    hover(squareButton(0));
     expect(squareButton(0)).toHaveAttribute('data-hovered', 'true');
     expect(hoveredButtons()).toEqual([squareButton(0)]);
   });
 
   it('should keep hovered and hint states distinct on the hovered square', () => {
     renderBoard();
-    fireEvent.mouseEnter(squareButton(0));
+    hover(squareButton(0));
     expect(squareButton(0)).toHaveAttribute('data-hovered', 'true');
     expect(squareButton(0)).not.toHaveAttribute('data-hint', 'true');
   });
 
   it('should remove data-hovered from all buttons on mouseLeave', () => {
     renderBoard();
-    fireEvent.mouseEnter(squareButton(0));
-    fireEvent.mouseLeave(squareButton(0));
+    hover(squareButton(0));
+    unhover(squareButton(0));
     expect(hoveredButtons()).toHaveLength(0);
   });
 
   it('should set data-hovered on focus and clear it on blur', () => {
     renderBoard();
-    fireEvent.focus(squareButton(3));
+    keyboardFocus(squareButton(3));
     expect(squareButton(3)).toHaveAttribute('data-hovered', 'true');
     expect(hoveredButtons()).toEqual([squareButton(3)]);
-    fireEvent.blur(squareButton(3));
+    keyboardBlur(squareButton(3));
     expect(hoveredButtons()).toHaveLength(0);
   });
 
   it('should set data-hovered on a marked (non-free) square', () => {
     renderBoard(makeBoard([0]));
-    fireEvent.mouseEnter(squareButton(0));
+    hover(squareButton(0));
     expect(squareButton(0)).toHaveAttribute('data-hovered', 'true');
   });
 
   it('should not set data-hovered on the free space even if mouseEnter fires', () => {
     renderBoard();
-    // jsdom may still dispatch mouseEnter on a disabled button, so the component must guard.
-    fireEvent.mouseEnter(squareButton(12));
+    // jsdom may still dispatch pointerEnter on a disabled button, so the component must guard.
+    hover(squareButton(12));
     expect(squareButton(12)).not.toHaveAttribute('data-hovered');
     expect(hoveredButtons()).toHaveLength(0);
   });

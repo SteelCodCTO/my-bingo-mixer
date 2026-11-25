@@ -104,27 +104,28 @@ function getWinningLines(): BingoLine[] {
 }
 
 /**
- * Check if there's a bingo and return the winning line(s)
+ * Return every complete line (rows, columns, diagonals, four corners)
  */
-export function checkBingo(board: BingoSquareData[]): BingoLine | null {
-  const lines = getWinningLines();
-
-  for (const line of lines) {
-    const isComplete = line.squares.every((idx) => board[idx].isMarked);
-    if (isComplete) {
-      return line;
-    }
-  }
-
-  return null;
+export function checkAllBingos(board: BingoSquareData[]): BingoLine[] {
+  return getWinningLines().filter((line) =>
+    line.squares.every((idx) => board[idx].isMarked)
+  );
 }
 
 /**
- * Get the square IDs that are part of a winning line
+ * Return the first complete line, or null
  */
-export function getWinningSquareIds(line: BingoLine | null): Set<number> {
-  if (!line) return new Set();
-  return new Set(line.squares);
+export function checkBingo(board: BingoSquareData[]): BingoLine | null {
+  return checkAllBingos(board)[0] ?? null;
+}
+
+/**
+ * Get the square IDs that are part of one or more winning lines
+ */
+export function getWinningSquareIds(lines: BingoLine | readonly BingoLine[] | null): Set<number> {
+  if (!lines) return new Set();
+  const list = Array.isArray(lines) ? lines : [lines as BingoLine];
+  return new Set(list.flatMap((line) => line.squares));
 }
 
 /**

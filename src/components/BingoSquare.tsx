@@ -44,9 +44,14 @@ export function BingoSquare({
   return (
     <button
       onClick={onClick}
-      onMouseEnter={onHoverStart}
-      onMouseLeave={onHoverEnd}
-      onFocus={onHoverStart}
+      onPointerEnter={(e) => {
+        if (e.pointerType === 'mouse') onHoverStart();
+      }}
+      onPointerLeave={onHoverEnd}
+      onFocus={(e) => {
+        // Taps also focus buttons; only keyboard focus should lift the square.
+        if (e.currentTarget.matches(':focus-visible')) onHoverStart();
+      }}
       onBlur={onHoverEnd}
       data-hint={isHint ? 'true' : undefined}
       data-hovered={isHovered ? 'true' : undefined}

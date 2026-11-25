@@ -29,7 +29,7 @@ export function StartScreen({ onStart, onStartDeck }: StartScreenProps) {
             <ol className="text-ink text-sm space-y-2 mt-2 list-none">
               <li><span className="font-display text-berry mr-2">1.</span>Mingle and find someone who matches a square</li>
               <li><span className="font-display text-berry mr-2">2.</span>Tap the square to stamp it</li>
-              <li><span className="font-display text-berry mr-2">3.</span>Get 5 in a row for a wicked good BINGO!</li>
+              <li><span className="font-display text-berry mr-2">3.</span>Get 5 in a row or all 4 corners for a wicked good BINGO!</li>
             </ol>
           </div>
 

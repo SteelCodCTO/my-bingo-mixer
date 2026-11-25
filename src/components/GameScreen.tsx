@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import type { BingoSquareData } from '../types';
 import { BingoBoard } from './BingoBoard';
 import { LobsterMascot } from './LobsterMascot';
@@ -25,12 +26,20 @@ export function GameScreen({
   onReset,
   onToggleSound,
 }: GameScreenProps) {
+  const confirmRef = useRef<HTMLDialogElement>(null);
+  const hasMarks = board.some((square) => square.isMarked && !square.isFreeSpace);
+
+  const handleBack = () => {
+    if (hasMarks) confirmRef.current?.showModal();
+    else onReset();
+  };
+
   return (
     <div className="sunburst flex flex-col min-h-full">
       <div className="stripes-70s h-3 shrink-0" aria-hidden="true" />
       <header className="flex items-center justify-between px-3 py-2 border-b-2 border-ink bg-snow/80">
         <button
-          onClick={onReset}
+          onClick={handleBack}
           className="text-ink text-sm font-semibold px-3 py-1.5 rounded-full border-2 border-ink bg-frost active:bg-gold"
         >
           ← Back
@@ -69,6 +78,37 @@ export function GameScreen({
         />
         <LobsterMascot line={mascotLine} lineKey={mascotKey} />
       </div>
+
+      <dialog
+        ref={confirmRef}
+        aria-labelledby="toss-title"
+        onClick={(event) => {
+          if (event.target === event.currentTarget) confirmRef.current?.close();
+        }}
+        className="m-auto p-6 max-w-xs w-[calc(100%-2rem)] bg-frost text-ink text-center border-2 border-ink rounded-3xl hard-shadow backdrop:bg-ink/70"
+      >
+        <h2 id="toss-title" className="font-display text-3xl text-berry mb-2">
+          Toss this card?
+        </h2>
+        <p className="text-sm mb-6">Your stamps go in the snowbank. No takebacks.</p>
+        <div className="flex gap-3">
+          <button
+            onClick={() => confirmRef.current?.close()}
+            className="flex-1 bg-snow text-ink font-display text-lg py-2 rounded-full border-2 border-ink hard-shadow transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none"
+          >
+            Keep it
+          </button>
+          <button
+            onClick={() => {
+              confirmRef.current?.close();
+              onReset();
+            }}
+            className="flex-1 bg-berry text-snow font-display text-lg py-2 rounded-full border-2 border-ink hard-shadow transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none"
+          >
+            Toss it
+          </button>
+        </div>
+      </dialog>
     </div>
   );
 }

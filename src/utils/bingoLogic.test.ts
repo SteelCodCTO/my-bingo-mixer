@@ -3,6 +3,7 @@ import {
   generateBoard,
   toggleSquare,
   checkBingo,
+  checkAllBingos,
   getWinningSquareIds,
   getHintSquareIds,
   type BingoSquareData,
@@ -346,7 +347,44 @@ describe('bingoLogic', () => {
     });
   });
 
+  describe('checkAllBingos', () => {
+    it('should return an empty array on a fresh board', () => {
+      expect(checkAllBingos(generateBoard())).toEqual([]);
+    });
+
+    it('should return every complete line', () => {
+      const board = generateBoard();
+      [0, 1, 2, 3, 4, 5, 10, 15, 20, 24].forEach((i) => {
+        board[i].isMarked = true;
+      });
+      const keys = checkAllBingos(board).map((l) => `${l.type}-${l.index}`);
+      expect(keys).toEqual(['row-0', 'column-0', 'corners-0']);
+    });
+
+    it('should drop only the broken line when a shared square stays marked', () => {
+      let current = generateBoard();
+      [0, 1, 2, 3, 4, 5, 10, 15, 20].forEach((i) => {
+        current = toggleSquare(current, i);
+      });
+      expect(checkAllBingos(current)).toHaveLength(2);
+      current = toggleSquare(current, 4);
+      expect(checkAllBingos(current).map((l) => l.type)).toEqual(['column']);
+    });
+  });
+
   describe('getWinningSquareIds', () => {
+    it('should union squares across multiple lines', () => {
+      const result = getWinningSquareIds([
+        { type: 'row', index: 0, squares: [0, 1, 2, 3, 4] },
+        { type: 'column', index: 0, squares: [0, 5, 10, 15, 20] },
+      ]);
+      expect(result).toEqual(new Set([0, 1, 2, 3, 4, 5, 10, 15, 20]));
+    });
+
+    it('should return empty set for an empty array', () => {
+      expect(getWinningSquareIds([]).size).toBe(0);
+    });
+
     it('should return empty set when no winning line', () => {
       const result = getWinningSquareIds(null);
       expect(result).toBeInstanceOf(Set);
