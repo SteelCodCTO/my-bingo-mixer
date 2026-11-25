@@ -1,19 +1,15 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-cream: #fbf1dc;
-  --color-parchment: #f3e2bf;
-  --color-mustard: #e8a925;
-  --color-pumpkin: #c8551f;
-  --color-cranberry: #9b2335;
-  --color-bark: #4a2c1a;
-  --color-harvest: #7a7d2c;
+  --color-snow: #fbf8f2;
+  --color-frost: #e4efe6;
+  --color-gold: #d9a521;
+  --color-berry: #c8323c;
+  --color-ruby: #8f1d2c;
+  --color-pine: #1d6a45;
+  --color-ink: #1f2a24;
 
-  --color-accent: #c8551f;
-  --color-accent-light: #db6a2f;
-  --color-marked: #f6d785;
-  --color-marked-border: #e8a925;
-  --color-bingo: #9b2335;
+  --color-marked: #f9dcdc;
 
   --font-display: 'Shrikhand', 'Cooper Black', Georgia, serif;
   --font-body: 'Fraunces', Georgia, serif;
@@ -73,27 +69,27 @@
 }
 
 @utility sunburst {
-  background-color: var(--color-cream);
+  background-color: var(--color-pine);
   background-image:
-    radial-gradient(circle at 50% 18%, transparent 0 22%, var(--color-cream) 70%),
+    radial-gradient(circle at 50% 18%, transparent 0 22%, var(--color-pine) 70%),
     repeating-conic-gradient(
       from 0deg at 50% 18%,
-      color-mix(in oklab, var(--color-mustard) 30%, transparent) 0deg 8deg,
+      color-mix(in oklab, var(--color-snow) 14%, transparent) 0deg 8deg,
       transparent 8deg 16deg
     );
 }
 
 @utility stripes-70s {
-  background-image: linear-gradient(
-    to bottom,
-    var(--color-mustard) 0 33.33%,
-    var(--color-pumpkin) 33.33% 66.66%,
-    var(--color-bark) 66.66% 100%
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--color-berry) 0 10px,
+    var(--color-snow) 10px 20px
   );
+  border-block: 2px solid var(--color-ink);
 }
 
 @utility hard-shadow {
-  box-shadow: 4px 4px 0 var(--color-bark);
+  box-shadow: 4px 4px 0 var(--color-ink);
 }
 
 html,
@@ -105,7 +101,7 @@ body,
 body {
   margin: 0;
   font-family: var(--font-body);
-  background-color: var(--color-cream);
-  color: var(--color-bark);
+  background-color: var(--color-pine);
+  color: var(--color-ink);
   -webkit-tap-highlight-color: transparent;
 }

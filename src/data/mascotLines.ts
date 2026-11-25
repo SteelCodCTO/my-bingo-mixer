@@ -1,4 +1,4 @@
-export const MASCOT_GREETING = "Grab a plate and staht minglin'!";
+export const MASCOT_GREETING = "Grab some cocoa and staht minglin'!";
 
 export const MARK_LINES: string[] = [
   "Wicked!",
@@ -8,16 +8,16 @@ export const MARK_LINES: string[] = [
   "Nice one, kid!",
   "Wicked smaht move!",
   "Bang-ah!",
-  "Gobble gobble, guy!",
+  "Ho ho ho, guy!",
   "Now we're cookin' with gas!",
-  "That's betta than leftovahs!",
+  "Betta than a snow day!",
   "Look at you, mingling like a pro!",
-  "Pass the cranberry, you're on fiah!",
+  "Pass the cocoa, you're on fiah!",
 ];
 
 export const BINGO_LINES: string[] = [
   "BINGO! Wicked smaht!",
   "Wicked good BINGO, kid!",
-  "BINGO! Time for pie, guy!",
+  "BINGO! Time for cookies, guy!",
   "You won! Tell ya mothah!",
 ];

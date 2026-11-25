@@ -25,9 +25,9 @@ Mobile-first social bingo game: React 19 + TypeScript + Vite 8 + Tailwind CSS 4,
 
 ## Styling
 
-- Tailwind v4 is CSS-first: theme tokens are in `@theme` in [src/index.css](src/index.css) (`accent`, `marked`, `bingo`, …). There is no `tailwind.config.js`.
+- Tailwind v4 is CSS-first: theme tokens are in `@theme` in [src/index.css](src/index.css) (`snow`, `frost`, `gold`, `berry`, `ruby`, `pine`, `ink`, `marked`). There is no `tailwind.config.js`.
 - Follow [.github/instructions/tailwind-4.instructions.md](.github/instructions/tailwind-4.instructions.md) and the [frontend-design skill](.github/skills/frontend-design/SKILL.md) for UI work.
-- Visual language (Thanksgiving in Boston, retro 70s): [.github/instructions/design-guide.instructions.md](.github/instructions/design-guide.instructions.md).
+- Visual language (Christmastime in Boston, retro 70s): [.github/instructions/design-guide.instructions.md](.github/instructions/design-guide.instructions.md).
 
 ## Repo layout notes
 

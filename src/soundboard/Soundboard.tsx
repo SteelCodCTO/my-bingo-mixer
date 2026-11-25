@@ -73,30 +73,30 @@ export function Soundboard() {
       <div className="stripes-70s h-4 shrink-0" aria-hidden="true" />
       <main className="flex-1 w-full max-w-2xl mx-auto p-4 sm:p-6">
         <header className="text-center mb-4">
-          <p className="text-xs font-bold uppercase tracking-[0.3em] text-pumpkin">Dev tool</p>
-          <h1 className="font-display text-4xl text-bark drop-shadow-[2px_2px_0_var(--color-mustard)]">
+          <p className="text-xs font-bold uppercase tracking-[0.3em] text-gold">Dev tool</p>
+          <h1 className="font-display text-4xl text-snow drop-shadow-[2px_2px_0_var(--color-ink)]">
             Larry's Soundboard
           </h1>
-          <p className="italic text-bark/80 text-sm mt-1">
+          <p className="italic text-snow/85 text-sm mt-1">
             {ALL_LINES.length} lines · tap to hear a clip · missing clips get flagged
           </p>
         </header>
 
-        <div className="bg-parchment border-2 border-bark rounded-2xl p-3 hard-shadow mb-4">
+        <div className="bg-frost border-2 border-ink rounded-2xl p-3 hard-shadow mb-4">
           <LobsterMascot line={line} lineKey={lineKey} />
         </div>
 
         <div className="flex gap-3 justify-center mb-6">
           <button
             onClick={playingAll ? stop : playAll}
-            className="bg-pumpkin text-cream font-display text-lg px-6 py-2 rounded-full border-2 border-bark hard-shadow transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none"
+            className="bg-berry text-snow font-display text-lg px-6 py-2 rounded-full border-2 border-ink hard-shadow transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none"
           >
             {playingAll ? 'Stop' : 'Play all'}
           </button>
           {playing && !playingAll && (
             <button
               onClick={stop}
-              className="bg-parchment text-bark font-display text-lg px-6 py-2 rounded-full border-2 border-bark hard-shadow transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none"
+              className="bg-frost text-ink font-display text-lg px-6 py-2 rounded-full border-2 border-ink hard-shadow transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none"
             >
               Stop
             </button>
@@ -105,8 +105,8 @@ export function Soundboard() {
 
         {GROUPS.map((group) => (
           <section key={group.title} className="mb-6">
-            <h2 className="font-display text-xl text-bark mb-2">
-              {group.title} <span className="text-bark/60 text-sm font-body">({group.lines.length})</span>
+            <h2 className="font-display text-xl text-snow mb-2">
+              {group.title} <span className="text-snow/70 text-sm font-body">({group.lines.length})</span>
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {group.lines.map((text) => {
@@ -119,15 +119,15 @@ export function Soundboard() {
                     aria-pressed={isPlaying}
                     className={`flex items-center gap-3 text-left px-3 py-2 rounded-xl border-2 transition-transform active:scale-[0.98] ${
                       isMissing
-                        ? 'bg-cranberry text-cream border-bark'
+                        ? 'bg-berry text-snow border-ink'
                         : isPlaying
-                          ? 'bg-mustard text-bark border-bark hard-shadow'
-                          : 'bg-cream text-bark border-bark/40'
+                          ? 'bg-gold text-ink border-ink hard-shadow'
+                          : 'bg-snow text-ink border-ink/40'
                     }`}
                   >
                     <span
-                      className={`shrink-0 w-8 h-8 grid place-items-center rounded-full border-2 border-bark ${
-                        isPlaying ? 'bg-pumpkin text-cream animate-wobble' : 'bg-parchment'
+                      className={`shrink-0 w-8 h-8 grid place-items-center rounded-full border-2 border-ink ${
+                        isPlaying ? 'bg-pine text-snow animate-wobble' : 'bg-frost'
                       }`}
                       aria-hidden="true"
                     >
@@ -135,7 +135,7 @@ export function Soundboard() {
                     </span>
                     <span className="flex-1 min-w-0">
                       <span className="block font-semibold leading-tight">{text}</span>
-                      <span className={`block text-xs truncate ${isMissing ? 'text-cream/80' : 'text-bark/60'}`}>
+                      <span className={`block text-xs truncate ${isMissing ? 'text-snow/80' : 'text-ink/60'}`}>
                         {isMissing ? 'Missing clip, run npm run audio:larry' : `${mascotAudioSlug(text)}.${MASCOT_AUDIO_EXT}`}
                       </span>
                     </span>

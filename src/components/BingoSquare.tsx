@@ -12,13 +12,13 @@ export function BingoSquare({ square, isWinning, onClick }: BingoSquareProps) {
 
   const stateClasses = square.isFreeSpace
     ? isWinning
-      ? 'bg-cranberry border-bark text-cream animate-wobble'
-      : 'bg-pumpkin border-bark text-cream'
+      ? 'bg-pine border-ink text-snow animate-wobble'
+      : 'bg-berry border-ink text-snow'
     : square.isMarked
       ? isWinning
-        ? 'bg-cranberry border-bark text-cream animate-wobble'
-        : 'bg-marked border-pumpkin text-bark'
-      : 'bg-cream border-bark/40 text-bark active:scale-95 active:bg-parchment';
+        ? 'bg-pine border-ink text-snow animate-wobble'
+        : 'bg-marked border-berry text-ink'
+      : 'bg-snow border-ink/40 text-ink active:scale-95 active:bg-frost';
 
   return (
     <button
@@ -31,27 +31,25 @@ export function BingoSquare({ square, isWinning, onClick }: BingoSquareProps) {
       {square.isFreeSpace ? (
         <>
           <svg viewBox="0 0 40 32" className="w-9 h-7" aria-hidden="true" strokeLinejoin="round">
-            <g stroke="var(--color-bark)" strokeWidth="1.5">
-              <path d="M20 22 L4 14 A17 17 0 0 1 9 5 Z" fill="var(--color-mustard)" />
-              <path d="M20 22 L9 5 A17 17 0 0 1 20 3 Z" fill="var(--color-cranberry)" />
-              <path d="M20 22 L20 3 A17 17 0 0 1 31 5 Z" fill="var(--color-cream)" />
-              <path d="M20 22 L31 5 A17 17 0 0 1 36 14 Z" fill="var(--color-harvest)" />
-              <ellipse cx="20" cy="22" rx="8" ry="8" fill="var(--color-bark)" />
-              <circle cx="20" cy="13" r="4" fill="var(--color-parchment)" />
+            <g stroke="var(--color-ink)" strokeWidth="1.5">
+              <path d="M20 2 Q24 4 20 6 Q16 4 20 2 Z" fill="none" />
+              <rect x="16.5" y="5.5" width="7" height="4" rx="1" fill="var(--color-snow)" />
+              <circle cx="20" cy="20" r="11" fill="var(--color-gold)" />
+              <path d="M9.5 17 Q20 21 30.5 17 L30.8 21 Q20 25 9.2 21 Z" fill="var(--color-snow)" />
             </g>
-            <circle cx="18.6" cy="12.4" r="0.9" fill="var(--color-bark)" />
-            <circle cx="21.4" cy="12.4" r="0.9" fill="var(--color-bark)" />
-            <path d="M19 14 L21 14 L20 15.8 Z" fill="var(--color-mustard)" />
-            <path d="M20.8 14.6 Q22 17 20.6 18" fill="none" stroke="var(--color-cranberry)" strokeWidth="1.4" strokeLinecap="round" />
+            <circle cx="14" cy="20" r="1.2" fill="var(--color-berry)" />
+            <circle cx="20" cy="21.6" r="1.2" fill="var(--color-berry)" />
+            <circle cx="26" cy="20" r="1.2" fill="var(--color-berry)" />
+            <path d="M14 13 Q16 11 18.5 10.8" fill="none" stroke="var(--color-snow)" strokeWidth="1.6" strokeLinecap="round" />
           </svg>
-          <span className="font-display text-xs mt-0.5 drop-shadow-[1px_1px_0_var(--color-bark)]">{square.text}</span>
+          <span className="font-display text-xs mt-0.5 drop-shadow-[1px_1px_0_var(--color-ink)]">{square.text}</span>
         </>
       ) : (
         <span className="wrap-break-word hyphens-auto">{square.text}</span>
       )}
       {square.isMarked && !square.isFreeSpace && (
         <span
-          className="animate-pop absolute -top-1.5 -right-1.5 w-5 h-5 grid place-items-center rounded-full bg-pumpkin border-2 border-bark text-cream text-[10px]"
+          className="animate-pop absolute -top-1.5 -right-1.5 w-5 h-5 grid place-items-center rounded-full bg-berry border-2 border-ink text-snow text-[10px]"
           aria-hidden="true"
         >
           ★

@@ -1,7 +1,7 @@
 ---
 name: larry-audio
 description: 'Add, edit, or regenerate voice lines for Larry the Lobstah, the Boston-accent mascot. Use when asked to add Larry lines, change what Larry says, give Larry new quips, regenerate or fix mascot audio clips, change Larry''s voice, or when mascotAudio tests fail with missing clips. Uses Piper TTS + MP3 encoding, previewed on the /soundboard.html dev page.'
-argument-hint: 'Lines to add or change, e.g. "3 new bingo lines about pie"'
+argument-hint: 'Lines to add or change, e.g. "3 new bingo lines about cocoa"'
 user-invocable: true
 ---
 
@@ -25,14 +25,14 @@ Adds or changes Larry's spoken lines and regenerates the matching `.mp3` clips s
    ```
    Override the voice with `PIPER_VOICE=<name>` (default `en_US-ryan-high`).
 3. **Generate the clips**: `npm run audio:larry`. Check that each new line prints `✓`, and that removed lines print `✗ removed stale`.
-4. **Spot-check the audio** on the dev soundboard at `http://localhost:5173/soundboard.html` (or with `afplay public/audio/larry/<slug>.mp3`). Every line has a play button and there's a "Play all" option. Clips that fail to load turn cranberry. If a word sounds wrong, respell it phonetically and repeat from step 3.
+4. **Spot-check the audio** on the dev soundboard at `http://localhost:5173/soundboard.html` (or with `afplay public/audio/larry/<slug>.mp3`). Every line has a play button and there's a "Play all" option. Clips that fail to load turn red. If a word sounds wrong, respell it phonetically and repeat from step 3.
 5. **Verify**: `npm run lint`, `npm run build`, `npm test`. `mascotAudio.test.ts` fails if any line lacks a clip or if two lines share a slug.
 6. **Report** the lines added or changed, any clips removed, and the total size (`du -sh public/audio/larry`). Aim for under 1 MB.
 
 ## Voice rules
 
 - Boston accent, spelled phonetically so TTS says it right: "staht", "keepah", "wicked smaht", "cah", "mothah", "fiah".
-- Family-friendly, Thanksgiving-themed, and short: 7 words or fewer for lines in the speech bubble.
+- Family-friendly, Christmas/winter-themed, and short: 7 words or fewer for lines in the speech bubble.
 - End with `!` for energy. Avoid emoji and symbols, which TTS reads literally or skips.
 - Lines must produce unique slugs. Lines that differ only in punctuation or case collide.
 

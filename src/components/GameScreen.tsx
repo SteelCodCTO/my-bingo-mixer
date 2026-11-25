@@ -28,15 +28,15 @@ export function GameScreen({
   return (
     <div className="sunburst flex flex-col min-h-full">
       <div className="stripes-70s h-3 shrink-0" aria-hidden="true" />
-      <header className="flex items-center justify-between px-3 py-2 border-b-2 border-bark bg-cream/80">
+      <header className="flex items-center justify-between px-3 py-2 border-b-2 border-ink bg-snow/80">
         <button
           onClick={onReset}
-          className="text-bark text-sm font-semibold px-3 py-1.5 rounded-full border-2 border-bark bg-parchment active:bg-mustard"
+          className="text-ink text-sm font-semibold px-3 py-1.5 rounded-full border-2 border-ink bg-frost active:bg-gold"
         >
           ← Back
         </button>
-        <h1 className="font-display text-xl text-bark">
-          Gobble <span className="text-pumpkin">Bingo</span>
+        <h1 className="font-display text-xl text-ink">
+          Jingle <span className="text-berry">Bingo</span>
         </h1>
         <div className="w-[4.5rem] flex justify-end">
           <button
@@ -44,20 +44,20 @@ export function GameScreen({
             aria-pressed={soundOn}
             aria-label="Larry's voice"
             title={soundOn ? "Mute Larry" : "Unmute Larry"}
-            className="w-9 h-9 grid place-items-center rounded-full border-2 border-bark bg-parchment text-base active:bg-mustard"
+            className="w-9 h-9 grid place-items-center rounded-full border-2 border-ink bg-frost text-base active:bg-gold"
           >
             <span aria-hidden="true">{soundOn ? '🔊' : '🔇'}</span>
           </button>
         </div>
       </header>
 
-      <p className="text-center text-bark/80 italic text-sm py-2 px-4">
+      <p className="text-center text-snow/85 italic text-sm py-2 px-4">
         Tap a square when you find someone who matches it.
       </p>
 
       {hasBingo && (
-        <div className="bg-cranberry text-cream text-center py-2 font-display text-base border-y-2 border-bark">
-          🦃 BINGO! You got a wicked good line!
+        <div className="bg-berry text-snow text-center py-2 font-display text-base border-y-2 border-ink">
+          🎄 BINGO! You got a wicked good line!
         </div>
       )}
 
