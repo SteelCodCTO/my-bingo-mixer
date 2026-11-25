@@ -30,8 +30,21 @@ export function BingoSquare({ square, isWinning, onClick }: BingoSquareProps) {
     >
       {square.isFreeSpace ? (
         <>
-          <span className="text-xl leading-none" aria-hidden="true">🦃</span>
-          <span className="font-display text-xs mt-0.5">{square.text}</span>
+          <svg viewBox="0 0 40 32" className="w-9 h-7" aria-hidden="true" strokeLinejoin="round">
+            <g stroke="var(--color-bark)" strokeWidth="1.5">
+              <path d="M20 22 L4 14 A17 17 0 0 1 9 5 Z" fill="var(--color-mustard)" />
+              <path d="M20 22 L9 5 A17 17 0 0 1 20 3 Z" fill="var(--color-cranberry)" />
+              <path d="M20 22 L20 3 A17 17 0 0 1 31 5 Z" fill="var(--color-cream)" />
+              <path d="M20 22 L31 5 A17 17 0 0 1 36 14 Z" fill="var(--color-harvest)" />
+              <ellipse cx="20" cy="22" rx="8" ry="8" fill="var(--color-bark)" />
+              <circle cx="20" cy="13" r="4" fill="var(--color-parchment)" />
+            </g>
+            <circle cx="18.6" cy="12.4" r="0.9" fill="var(--color-bark)" />
+            <circle cx="21.4" cy="12.4" r="0.9" fill="var(--color-bark)" />
+            <path d="M19 14 L21 14 L20 15.8 Z" fill="var(--color-mustard)" />
+            <path d="M20.8 14.6 Q22 17 20.6 18" fill="none" stroke="var(--color-cranberry)" strokeWidth="1.4" strokeLinecap="round" />
+          </svg>
+          <span className="font-display text-xs mt-0.5 drop-shadow-[1px_1px_0_var(--color-bark)]">{square.text}</span>
         </>
       ) : (
         <span className="wrap-break-word hyphens-auto">{square.text}</span>
