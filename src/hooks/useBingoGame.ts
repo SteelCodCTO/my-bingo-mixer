@@ -8,7 +8,7 @@ import {
 } from '../utils/bingoLogic';
 import { pickLine } from '../utils/mascotLogic';
 import { MASCOT_GREETING, MARK_LINES, BINGO_LINES } from '../data/mascotLines';
-import { speakLine, cancelSpeech } from '../utils/speech';
+import { playLarry, stopLarry } from '../utils/larryVoice';
 
 export interface BingoGameState {
   gameState: GameState;
@@ -177,7 +177,7 @@ export function useBingoGame(): BingoGameState & BingoGameActions {
     if (mascotKey === spokenKeyRef.current) return;
     spokenKeyRef.current = mascotKey;
     if (soundOn && gameState !== 'start') {
-      speakLine(mascotLine);
+      playLarry(mascotLine);
     }
   }, [mascotKey, mascotLine, soundOn, gameState]);
 
@@ -190,9 +190,9 @@ export function useBingoGame(): BingoGameState & BingoGameActions {
       // Storage unavailable (e.g. private mode); the toggle still works for this session.
     }
     if (next) {
-      speakLine(mascotLine);
+      playLarry(mascotLine);
     } else {
-      cancelSpeech();
+      stopLarry();
     }
   }, [soundOn, mascotLine]);
 

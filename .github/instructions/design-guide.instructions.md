@@ -41,7 +41,7 @@ Retro 70s Thanksgiving card, with Boston flavor. Warm, chunky, and playful. Tail
 
 - Larry is an inline SVG in [LobsterMascot.tsx](../../src/components/LobsterMascot.tsx): a flat-shaded lobster with bark outlines (`strokeWidth` 2.5) in a black pilgrim hat with a mustard buckle.
 - Lines live in [mascotLines.ts](../../src/data/mascotLines.ts). The SVG is `aria-hidden`, and the speech bubble sits inside a stable `aria-live="polite"` wrapper.
-- Larry's voice uses the Web Speech API via [speech.ts](../../src/utils/speech.ts), and the header 🔊 button mutes it. Only speak in response to a tap; browsers block audio before a user gesture. Write lines phonetically ("staht", "keepah") so the voice sounds Boston.
+- Larry's voice plays pre-generated Piper TTS clips from `public/audio/larry/` via [larryVoice.ts](../../src/utils/larryVoice.ts). If a clip is missing, it falls back to browser speech ([speech.ts](../../src/utils/speech.ts)). The header 🔊 button mutes it. Only play audio in response to a tap; browsers block audio before a user gesture. Write lines phonetically ("staht", "keepah") so the voice sounds Boston, and run `npm run audio:larry` after editing lines.
 
 ## Accessibility
 
