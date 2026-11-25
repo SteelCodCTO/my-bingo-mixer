@@ -1,11 +1,99 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-accent: #2563eb;
-  --color-accent-light: #3b82f6;
-  --color-marked: #dcfce7;
-  --color-marked-border: #22c55e;
-  --color-bingo: #fbbf24;
+  --color-cream: #fbf1dc;
+  --color-parchment: #f3e2bf;
+  --color-mustard: #e8a925;
+  --color-pumpkin: #c8551f;
+  --color-cranberry: #9b2335;
+  --color-bark: #4a2c1a;
+  --color-harvest: #7a7d2c;
+
+  --color-accent: #c8551f;
+  --color-accent-light: #db6a2f;
+  --color-marked: #f6d785;
+  --color-marked-border: #e8a925;
+  --color-bingo: #9b2335;
+
+  --font-display: 'Shrikhand', 'Cooper Black', Georgia, serif;
+  --font-body: 'Fraunces', Georgia, serif;
+
+  --animate-rise: rise 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  --animate-pop: pop 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.4) both;
+  --animate-wobble: wobble 0.6s ease-in-out;
+  --animate-bob: bob 3s ease-in-out infinite;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: scale(0.6) rotate(-4deg);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) rotate(0);
+    }
+  }
+
+  @keyframes wobble {
+    0%,
+    100% {
+      transform: rotate(0);
+    }
+    25% {
+      transform: rotate(-8deg);
+    }
+    50% {
+      transform: rotate(6deg);
+    }
+    75% {
+      transform: rotate(-3deg);
+    }
+  }
+
+  @keyframes bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-3px);
+    }
+  }
+}
+
+@utility sunburst {
+  background-color: var(--color-cream);
+  background-image:
+    radial-gradient(circle at 50% 18%, transparent 0 22%, var(--color-cream) 70%),
+    repeating-conic-gradient(
+      from 0deg at 50% 18%,
+      color-mix(in oklab, var(--color-mustard) 30%, transparent) 0deg 8deg,
+      transparent 8deg 16deg
+    );
+}
+
+@utility stripes-70s {
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-mustard) 0 33.33%,
+    var(--color-pumpkin) 33.33% 66.66%,
+    var(--color-bark) 66.66% 100%
+  );
+}
+
+@utility hard-shadow {
+  box-shadow: 4px 4px 0 var(--color-bark);
 }
 
 html,
@@ -16,6 +104,8 @@ body,
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
+  background-color: var(--color-cream);
+  color: var(--color-bark);
   -webkit-tap-highlight-color: transparent;
 }

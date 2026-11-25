@@ -4,18 +4,31 @@ interface BingoModalProps {
 
 export function BingoModal({ onDismiss }: BingoModalProps) {
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl p-6 max-w-xs w-full text-center shadow-xl animate-[bounce_0.5s_ease-out]">
-        <div className="text-5xl mb-4">🎉</div>
-        <h2 className="text-3xl font-bold text-amber-500 mb-2">BINGO!</h2>
-        <p className="text-gray-600 mb-6">You completed a line!</p>
-        
-        <button
-          onClick={onDismiss}
-          className="w-full bg-accent text-white font-semibold py-3 px-6 rounded-lg active:bg-accent-light transition-colors"
-        >
-          Keep Playing
-        </button>
+    <div className="fixed inset-0 bg-bark/70 flex items-center justify-center p-4 z-50">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="bingo-title"
+        className="animate-pop sunburst relative overflow-hidden border-2 border-bark rounded-3xl max-w-xs w-full text-center hard-shadow"
+      >
+        <div className="stripes-70s h-4" aria-hidden="true" />
+        <div className="p-6">
+          <div className="text-6xl mb-3 animate-wobble" aria-hidden="true">🦃</div>
+          <h2
+            id="bingo-title"
+            className="font-display text-4xl leading-none text-cranberry mb-2 drop-shadow-[2px_2px_0_var(--color-mustard)]"
+          >
+            Wicked Good BINGO!
+          </h2>
+          <p className="text-bark/80 italic mb-6">You finished a whole row. Have some pie.</p>
+
+          <button
+            onClick={onDismiss}
+            className="w-full bg-pumpkin text-cream font-display text-xl py-3 px-6 rounded-full border-2 border-bark hard-shadow transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none"
+          >
+            Back to the Table
+          </button>
+        </div>
       </div>
     </div>
   );

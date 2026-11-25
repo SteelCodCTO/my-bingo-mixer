@@ -1,54 +1,73 @@
 import type { BingoSquareData } from '../types';
 import { BingoBoard } from './BingoBoard';
+import { LobsterMascot } from './LobsterMascot';
 
 interface GameScreenProps {
   board: BingoSquareData[];
   winningSquareIds: Set<number>;
   hasBingo: boolean;
+  mascotLine: string;
+  mascotKey: number;
+  soundOn: boolean;
   onSquareClick: (squareId: number) => void;
   onReset: () => void;
+  onToggleSound: () => void;
 }
 
 export function GameScreen({
   board,
   winningSquareIds,
   hasBingo,
+  mascotLine,
+  mascotKey,
+  soundOn,
   onSquareClick,
   onReset,
+  onToggleSound,
 }: GameScreenProps) {
   return (
-    <div className="flex flex-col min-h-full bg-gray-50">
-      {/* Header */}
-      <header className="flex items-center justify-between p-3 bg-white border-b border-gray-200">
+    <div className="sunburst flex flex-col min-h-full">
+      <div className="stripes-70s h-3 shrink-0" aria-hidden="true" />
+      <header className="flex items-center justify-between px-3 py-2 border-b-2 border-bark bg-cream/80">
         <button
           onClick={onReset}
-          className="text-gray-500 text-sm px-3 py-1.5 rounded active:bg-gray-100"
+          className="text-bark text-sm font-semibold px-3 py-1.5 rounded-full border-2 border-bark bg-parchment active:bg-mustard"
         >
           ← Back
         </button>
-        <h1 className="font-bold text-gray-900">Bingo Mixer</h1>
-        <div className="w-16"></div>
+        <h1 className="font-display text-xl text-bark">
+          Gobble <span className="text-pumpkin">Bingo</span>
+        </h1>
+        <div className="w-[4.5rem] flex justify-end">
+          <button
+            onClick={onToggleSound}
+            aria-pressed={soundOn}
+            aria-label="Larry's voice"
+            title={soundOn ? "Mute Larry" : "Unmute Larry"}
+            className="w-9 h-9 grid place-items-center rounded-full border-2 border-bark bg-parchment text-base active:bg-mustard"
+          >
+            <span aria-hidden="true">{soundOn ? '🔊' : '🔇'}</span>
+          </button>
+        </div>
       </header>
 
-      {/* Instructions */}
-      <p className="text-center text-gray-500 text-sm py-2 px-4">
+      <p className="text-center text-bark/80 italic text-sm py-2 px-4">
         Tap a square when you find someone who matches it.
       </p>
 
-      {/* Bingo indicator */}
       {hasBingo && (
-        <div className="bg-amber-100 text-amber-800 text-center py-2 font-semibold text-sm">
-          🎉 BINGO! You got a line!
+        <div className="bg-cranberry text-cream text-center py-2 font-display text-base border-y-2 border-bark">
+          🦃 BINGO! You got a wicked good line!
         </div>
       )}
 
-      {/* Board */}
-      <div className="flex-1 flex items-center justify-center p-3">
+      <div className="flex-1 flex flex-col items-center justify-center gap-3 p-3">
         <BingoBoard
           board={board}
           winningSquareIds={winningSquareIds}
           onSquareClick={onSquareClick}
         />
+        <LobsterMascot line={mascotLine} lineKey={mascotKey} />
       </div>
     </div>
   );

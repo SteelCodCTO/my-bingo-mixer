@@ -9,10 +9,14 @@ function App() {
     board,
     winningSquareIds,
     showBingoModal,
+    mascotLine,
+    mascotKey,
+    soundOn,
     startGame,
     handleSquareClick,
     resetGame,
     dismissModal,
+    toggleSound,
   } = useBingoGame();
 
   if (gameState === 'start') {
@@ -25,6 +29,10 @@ function App() {
         board={board}
         winningSquareIds={winningSquareIds}
         hasBingo={gameState === 'bingo'}
+        mascotLine={mascotLine}
+        mascotKey={mascotKey}
+        soundOn={soundOn}
+        onToggleSound={toggleSound}
         onSquareClick={handleSquareClick}
         onReset={resetGame}
       />

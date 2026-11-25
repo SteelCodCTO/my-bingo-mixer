@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import type { BingoSquareData, BingoLine, GameState } from '../types';
 import {
   generateBoard,
@@ -6,6 +6,9 @@ import {
   checkBingo,
   getWinningSquareIds,
 } from '../utils/bingoLogic';
+import { pickLine } from '../utils/mascotLogic';
+import { MASCOT_GREETING, MARK_LINES, BINGO_LINES } from '../data/mascotLines';
+import { speakLine, cancelSpeech } from '../utils/speech';
 
 export interface BingoGameState {
   gameState: GameState;
@@ -13,6 +16,9 @@ export interface BingoGameState {
   winningLine: BingoLine | null;
   winningSquareIds: Set<number>;
   showBingoModal: boolean;
+  mascotLine: string;
+  mascotKey: number;
+  soundOn: boolean;
 }
 
 export interface BingoGameActions {
@@ -20,10 +26,21 @@ export interface BingoGameActions {
   handleSquareClick: (squareId: number) => void;
   resetGame: () => void;
   dismissModal: () => void;
+  toggleSound: () => void;
+}
+
+const SOUND_STORAGE_KEY = 'bingo-sound';
+
+function loadSoundOn(): boolean {
+  try {
+    return localStorage.getItem(SOUND_STORAGE_KEY) !== 'off';
+  } catch {
+    return true;
+  }
 }
 
 const STORAGE_KEY = 'bingo-game-state';
-const STORAGE_VERSION = 1;
+const STORAGE_VERSION = 2;
 
 interface StoredGameData {
   version: number;
@@ -150,6 +167,44 @@ export function useBingoGame(): BingoGameState & BingoGameActions {
     () => loadedState?.winningLine || null
   );
   const [showBingoModal, setShowBingoModal] = useState(false);
+  const [mascotLine, setMascotLine] = useState(MASCOT_GREETING);
+  const [mascotKey, setMascotKey] = useState(0);
+  const [soundOn, setSoundOn] = useState(loadSoundOn);
+  const spokenKeyRef = useRef(mascotKey);
+
+  // Only speak after a tap changes the line; browsers block speech before a user gesture.
+  useEffect(() => {
+    if (mascotKey === spokenKeyRef.current) return;
+    spokenKeyRef.current = mascotKey;
+    if (soundOn && gameState !== 'start') {
+      speakLine(mascotLine);
+    }
+  }, [mascotKey, mascotLine, soundOn, gameState]);
+
+  const toggleSound = useCallback(() => {
+    const next = !soundOn;
+    setSoundOn(next);
+    try {
+      localStorage.setItem(SOUND_STORAGE_KEY, next ? 'on' : 'off');
+    } catch {
+      // Storage unavailable (e.g. private mode); the toggle still works for this session.
+    }
+    if (next) {
+      speakLine(mascotLine);
+    } else {
+      cancelSpeech();
+    }
+  }, [soundOn, mascotLine]);
+
+  const sayMascotLine = useCallback((lines: readonly string[]) => {
+    setMascotLine((previous) => pickLine(lines, previous));
+    setMascotKey((key) => key + 1);
+  }, []);
+
+  const greet = useCallback(() => {
+    setMascotLine(MASCOT_GREETING);
+    setMascotKey((key) => key + 1);
+  }, []);
 
   const winningSquareIds = useMemo(
     () => getWinningSquareIds(winningLine),
@@ -165,33 +220,36 @@ export function useBingoGame(): BingoGameState & BingoGameActions {
     setBoard(generateBoard());
     setWinningLine(null);
     setGameState('playing');
-  }, []);
+    greet();
+  }, [greet]);
 
   const handleSquareClick = useCallback((squareId: number) => {
-    setBoard((currentBoard) => {
-      const newBoard = toggleSquare(currentBoard, squareId);
-      
-      // Check for bingo after toggling
-      const bingo = checkBingo(newBoard);
-      if (bingo && !winningLine) {
-        // Schedule state updates to avoid synchronous setState in effect
-        queueMicrotask(() => {
-          setWinningLine(bingo);
-          setGameState('bingo');
-          setShowBingoModal(true);
-        });
-      }
-      
-      return newBoard;
-    });
-  }, [winningLine]);
+    const target = board.find((square) => square.id === squareId);
+    if (!target || target.isFreeSpace) {
+      return;
+    }
+
+    const newBoard = toggleSquare(board, squareId);
+    setBoard(newBoard);
+
+    const bingo = checkBingo(newBoard);
+    if (bingo && !winningLine) {
+      setWinningLine(bingo);
+      setGameState('bingo');
+      setShowBingoModal(true);
+      sayMascotLine(BINGO_LINES);
+    } else if (!target.isMarked) {
+      sayMascotLine(MARK_LINES);
+    }
+  }, [board, winningLine, sayMascotLine]);
 
   const resetGame = useCallback(() => {
     setGameState('start');
     setBoard([]);
     setWinningLine(null);
     setShowBingoModal(false);
-  }, []);
+    greet();
+  }, [greet]);
 
   const dismissModal = useCallback(() => {
     setShowBingoModal(false);
@@ -203,9 +261,13 @@ export function useBingoGame(): BingoGameState & BingoGameActions {
     winningLine,
     winningSquareIds,
     showBingoModal,
+    mascotLine,
+    mascotKey,
+    soundOn,
     startGame,
     handleSquareClick,
     resetGame,
     dismissModal,
+    toggleSound,
   };
 }
