@@ -42,7 +42,7 @@ export function GameScreen({
           onClick={handleBack}
           className="text-ink text-sm font-semibold px-3 py-1.5 rounded-full border-2 border-ink bg-frost active:bg-gold"
         >
-          ← Back
+          <span aria-hidden="true">← </span>Back
         </button>
         <h1 className="font-display text-xl text-ink">
           Jingle <span className="text-berry">Bingo</span>
@@ -66,7 +66,7 @@ export function GameScreen({
 
       {hasBingo && (
         <div className="bg-berry text-snow text-center py-2 font-display text-base border-y-2 border-ink">
-          🎄 BINGO! You got a wicked good line!
+          <span aria-hidden="true">🎄 </span>BINGO! You got a wicked good line!
         </div>
       )}
 

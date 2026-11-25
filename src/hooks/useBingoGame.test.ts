@@ -78,4 +78,87 @@ describe('useBingoGame', () => {
     expect(reloaded.result.current.winningLines).toHaveLength(1);
     expect(result.current.board).toEqual(reloaded.result.current.board);
   });
+
+  it('restores the open bingo modal and Larry line after a reload', () => {
+    const { result, tap } = setup();
+    tap(0, 1, 2, 3, 4);
+
+    const reloaded = renderHook(() => useBingoGame());
+    expect(reloaded.result.current.showBingoModal).toBe(true);
+    expect(reloaded.result.current.mascotLine).toBe(result.current.mascotLine);
+  });
+
+  it('closes the modal and deals a fresh board on startGame', () => {
+    const { result, tap } = setup();
+    tap(0, 1, 2, 3, 4);
+    act(() => result.current.startGame());
+
+    expect(result.current.showBingoModal).toBe(false);
+    expect(result.current.gameState).toBe('playing');
+    expect(result.current.winningLines).toEqual([]);
+  });
+});
+
+describe('useBingoGame deck', () => {
+  beforeEach(() => {
+    const store = new Map<string, string>();
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => store.set(key, value),
+      removeItem: (key: string) => store.delete(key),
+      clear: () => store.clear(),
+    });
+  });
+
+  function startDeck() {
+    const hook = renderHook(() => useBingoGame());
+    act(() => hook.result.current.startDeck());
+    act(() => hook.result.current.drawCard());
+    return hook.result;
+  }
+
+  it('deals every card once before the deck ends', () => {
+    const result = startDeck();
+    const size = result.current.deckSize;
+    const seen = new Set<string>();
+
+    for (let i = 0; i < size; i++) {
+      seen.add(result.current.currentCard!);
+      act(() => result.current.resolveCard(i % 2 ? 'found' : 'skipped'));
+    }
+
+    expect(seen.size).toBe(size);
+    expect(result.current.deckDone).toBe(true);
+    expect(result.current.currentCard).toBeNull();
+    expect(result.current.foundCount + result.current.skippedCount).toBe(size);
+  });
+
+  it('records found cards for the summary', () => {
+    const result = startDeck();
+    const first = result.current.currentCard;
+    act(() => result.current.resolveCard('found'));
+    expect(result.current.foundCards).toEqual([first]);
+  });
+
+  it('restores deck progress after a reload', () => {
+    const result = startDeck();
+    act(() => result.current.resolveCard('found'));
+    act(() => result.current.resolveCard('skipped'));
+
+    const reloaded = renderHook(() => useBingoGame());
+    expect(reloaded.result.current.gameState).toBe('deck');
+    expect(reloaded.result.current.currentCard).toBe(result.current.currentCard);
+    expect(reloaded.result.current.foundCount).toBe(1);
+    expect(reloaded.result.current.skippedCount).toBe(1);
+  });
+
+  it('reshuffles into a fresh deck', () => {
+    const result = startDeck();
+    act(() => result.current.resolveCard('found'));
+    act(() => result.current.startDeck());
+
+    expect(result.current.foundCount).toBe(0);
+    expect(result.current.currentCard).toBeNull();
+    expect(result.current.deckDone).toBe(false);
+  });
 });

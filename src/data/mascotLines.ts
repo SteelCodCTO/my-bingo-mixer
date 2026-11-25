@@ -21,3 +21,9 @@ export const BINGO_LINES: string[] = [
   "BINGO! Time for cookies, guy!",
   "You won! Tell ya mothah!",
 ];
+
+// Reuses existing lines so no new voice clips are needed.
+export const DECK_DONE_LINES: string[] = [
+  "You won! Tell ya mothah!",
+  "Look at you, mingling like a pro!",
+];

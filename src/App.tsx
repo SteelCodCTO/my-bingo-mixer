@@ -8,6 +8,7 @@ function App() {
   const {
     gameState,
     board,
+    winningLines,
     winningSquareIds,
     showBingoModal,
     mascotLine,
@@ -15,6 +16,9 @@ function App() {
     soundOn,
     currentCard,
     cardKey,
+    deckSize,
+    deckDone,
+    foundCards,
     foundCount,
     skippedCount,
     startGame,
@@ -36,10 +40,16 @@ function App() {
       <CardDeckScreen
         currentCard={currentCard}
         cardKey={cardKey}
+        deckSize={deckSize}
+        deckDone={deckDone}
+        foundCards={foundCards}
         foundCount={foundCount}
         skippedCount={skippedCount}
+        mascotLine={mascotLine}
+        mascotKey={mascotKey}
         onDraw={drawCard}
         onResolve={resolveCard}
+        onReshuffle={startDeck}
         onBack={resetGame}
       />
     );
@@ -58,8 +68,12 @@ function App() {
         onSquareClick={handleSquareClick}
         onReset={resetGame}
       />
-      {showBingoModal && (
-        <BingoModal onDismiss={dismissModal} />
+      {showBingoModal && winningLines.length > 0 && (
+        <BingoModal
+          lineType={winningLines[0].type}
+          onDismiss={dismissModal}
+          onNewCard={startGame}
+        />
       )}
     </>
   );

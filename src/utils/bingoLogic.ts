@@ -50,6 +50,13 @@ export function generateBoard(): BingoSquareData[] {
 }
 
 /**
+ * Shuffle the full question pool into a deck dealt once before repeating
+ */
+export function shuffleDeck(): string[] {
+  return shuffleArray(questions);
+}
+
+/**
  * Toggle a square's marked state
  */
 export function toggleSquare(board: BingoSquareData[], squareId: number): BingoSquareData[] {

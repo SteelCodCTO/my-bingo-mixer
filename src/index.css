@@ -19,6 +19,16 @@
   --animate-wobble: wobble 0.6s ease-in-out;
   --animate-bob: bob 3s ease-in-out infinite;
   --animate-flip: flip 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  --animate-fade: fade 0.3s ease-out both;
+
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 
   @keyframes flip {
     from {
@@ -116,4 +126,22 @@ body {
   background-color: var(--color-pine);
   color: var(--color-ink);
   -webkit-tap-highlight-color: transparent;
+}
+
+@layer base {
+  :focus-visible {
+    outline: 3px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

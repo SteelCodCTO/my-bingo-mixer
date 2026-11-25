@@ -5,11 +5,11 @@ import {
   toggleSquare,
   checkAllBingos,
   getWinningSquareIds,
+  shuffleDeck,
 } from '../utils/bingoLogic';
 import { pickLine } from '../utils/mascotLogic';
-import { MASCOT_GREETING, MARK_LINES, BINGO_LINES } from '../data/mascotLines';
+import { MASCOT_GREETING, MARK_LINES, BINGO_LINES, DECK_DONE_LINES } from '../data/mascotLines';
 import { playLarry, stopLarry } from '../utils/larryVoice';
-import { questions } from '../data/questions';
 
 export interface BingoGameState {
   gameState: GameState;
@@ -22,6 +22,9 @@ export interface BingoGameState {
   soundOn: boolean;
   currentCard: string | null;
   cardKey: number;
+  deckSize: number;
+  deckDone: boolean;
+  foundCards: string[];
   foundCount: number;
   skippedCount: number;
 }
@@ -48,7 +51,7 @@ function loadSoundOn(): boolean {
 }
 
 const STORAGE_KEY = 'bingo-game-state';
-const STORAGE_VERSION = 4;
+const STORAGE_VERSION = 5;
 
 interface StoredGameData {
   version: number;
@@ -56,7 +59,16 @@ interface StoredGameData {
   board: BingoSquareData[];
   winningLines: BingoLine[];
   hasCelebrated: boolean;
+  showBingoModal: boolean;
+  mascotLine: string;
+  deckOrder: string[];
+  deckIndex: number;
+  foundCards: string[];
+  skippedCount: number;
 }
+
+const isStringArray = (value: unknown): value is string[] =>
+  Array.isArray(value) && value.every((item) => typeof item === 'string');
 
 function isValidLine(value: unknown): value is BingoLine {
   if (!value || typeof value !== 'object') return false;
@@ -110,7 +122,25 @@ function validateStoredData(data: unknown): data is StoredGameData {
     return false;
   }
 
-  if (typeof obj.hasCelebrated !== 'boolean') {
+  if (typeof obj.hasCelebrated !== 'boolean' || typeof obj.showBingoModal !== 'boolean') {
+    return false;
+  }
+
+  if (typeof obj.mascotLine !== 'string') {
+    return false;
+  }
+
+  if (!isStringArray(obj.deckOrder) || !isStringArray(obj.foundCards)) {
+    return false;
+  }
+
+  if (
+    !Number.isInteger(obj.deckIndex) ||
+    (obj.deckIndex as number) < -1 ||
+    (obj.deckIndex as number) > obj.deckOrder.length ||
+    !Number.isInteger(obj.skippedCount) ||
+    (obj.skippedCount as number) < 0
+  ) {
     return false;
   }
   
@@ -132,12 +162,7 @@ function loadGameState(): Omit<StoredGameData, 'version'> | null {
     const parsed = JSON.parse(saved);
     
     if (validateStoredData(parsed)) {
-      return {
-        gameState: parsed.gameState,
-        board: parsed.board,
-        winningLines: parsed.winningLines,
-        hasCelebrated: parsed.hasCelebrated,
-      };
+      return parsed;
     } else {
       console.warn('Invalid game state data in localStorage, clearing...');
       localStorage.removeItem(STORAGE_KEY);
@@ -181,15 +206,26 @@ export function useBingoGame(): BingoGameState & BingoGameActions {
   const [hasCelebrated, setHasCelebrated] = useState(
     () => loadedState?.hasCelebrated || false
   );
-  const [showBingoModal, setShowBingoModal] = useState(false);
-  const [mascotLine, setMascotLine] = useState(MASCOT_GREETING);
+  const [showBingoModal, setShowBingoModal] = useState(
+    () => loadedState?.showBingoModal || false
+  );
+  const [mascotLine, setMascotLine] = useState(
+    () => loadedState?.mascotLine || MASCOT_GREETING
+  );
   const [mascotKey, setMascotKey] = useState(0);
   const [soundOn, setSoundOn] = useState(loadSoundOn);
-  const [currentCard, setCurrentCard] = useState<string | null>(null);
-  const [cardKey, setCardKey] = useState(0);
-  const [foundCount, setFoundCount] = useState(0);
-  const [skippedCount, setSkippedCount] = useState(0);
+  const [deckOrder, setDeckOrder] = useState<string[]>(
+    () => loadedState?.deckOrder || []
+  );
+  const [deckIndex, setDeckIndex] = useState(() => loadedState?.deckIndex ?? -1);
+  const [foundCards, setFoundCards] = useState<string[]>(
+    () => loadedState?.foundCards || []
+  );
+  const [skippedCount, setSkippedCount] = useState(() => loadedState?.skippedCount || 0);
   const spokenKeyRef = useRef(mascotKey);
+
+  const currentCard = deckIndex >= 0 ? deckOrder[deckIndex] ?? null : null;
+  const deckDone = deckOrder.length > 0 && deckIndex >= deckOrder.length;
 
   // Only speak after a tap changes the line; browsers block speech before a user gesture.
   useEffect(() => {
@@ -232,13 +268,25 @@ export function useBingoGame(): BingoGameState & BingoGameActions {
 
   // Save game state to localStorage whenever it changes
   useEffect(() => {
-    saveGameState({ gameState, board, winningLines, hasCelebrated });
-  }, [gameState, board, winningLines, hasCelebrated]);
+    saveGameState({
+      gameState,
+      board,
+      winningLines,
+      hasCelebrated,
+      showBingoModal,
+      mascotLine,
+      deckOrder,
+      deckIndex,
+      foundCards,
+      skippedCount,
+    });
+  }, [gameState, board, winningLines, hasCelebrated, showBingoModal, mascotLine, deckOrder, deckIndex, foundCards, skippedCount]);
 
   const startGame = useCallback(() => {
     setBoard(generateBoard());
     setWinningLines([]);
     setHasCelebrated(false);
+    setShowBingoModal(false);
     setGameState('playing');
     greet();
   }, [greet]);
@@ -247,25 +295,33 @@ export function useBingoGame(): BingoGameState & BingoGameActions {
     setBoard([]);
     setWinningLines([]);
     setHasCelebrated(false);
-    setCurrentCard(null);
-    setFoundCount(0);
+    setDeckOrder(shuffleDeck());
+    setDeckIndex(-1);
+    setFoundCards([]);
     setSkippedCount(0);
     setGameState('deck');
-  }, []);
+    greet();
+  }, [greet]);
 
   const drawCard = useCallback(() => {
-    setCurrentCard((previous) => pickLine(questions, previous));
-    setCardKey((key) => key + 1);
+    setDeckIndex((index) => Math.max(index, 0));
   }, []);
 
   const resolveCard = useCallback((result: 'found' | 'skipped') => {
+    if (!currentCard) return;
     if (result === 'found') {
-      setFoundCount((count) => count + 1);
+      setFoundCards((cards) => [...cards, currentCard]);
     } else {
       setSkippedCount((count) => count + 1);
     }
-    drawCard();
-  }, [drawCard]);
+    setDeckIndex(deckIndex + 1);
+
+    if (deckIndex + 1 >= deckOrder.length) {
+      sayMascotLine(DECK_DONE_LINES);
+    } else if (result === 'found') {
+      sayMascotLine(MARK_LINES);
+    }
+  }, [currentCard, deckIndex, deckOrder.length, sayMascotLine]);
 
   const handleSquareClick = useCallback((squareId: number) => {
     const target = board.find((square) => square.id === squareId);
@@ -299,7 +355,10 @@ export function useBingoGame(): BingoGameState & BingoGameActions {
     setWinningLines([]);
     setHasCelebrated(false);
     setShowBingoModal(false);
-    setCurrentCard(null);
+    setDeckOrder([]);
+    setDeckIndex(-1);
+    setFoundCards([]);
+    setSkippedCount(0);
     greet();
   }, [greet]);
 
@@ -317,8 +376,11 @@ export function useBingoGame(): BingoGameState & BingoGameActions {
     mascotKey,
     soundOn,
     currentCard,
-    cardKey,
-    foundCount,
+    cardKey: deckIndex,
+    deckSize: deckOrder.length,
+    deckDone,
+    foundCards,
+    foundCount: foundCards.length,
     skippedCount,
     startGame,
     startDeck,

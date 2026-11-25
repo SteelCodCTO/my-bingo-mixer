@@ -20,7 +20,7 @@ export function BingoSquare({
   onHoverEnd,
 }: BingoSquareProps) {
   const baseClasses =
-    'relative flex flex-col items-center justify-center p-1 text-center border-2 rounded-xl transition-all duration-150 select-none min-h-[60px] text-[11px] leading-tight font-semibold';
+    'relative flex flex-col items-center justify-center px-0.5 py-1 text-center border-2 rounded-xl transition-all duration-150 select-none min-h-[60px] text-[clamp(10px,3.1cqi,12px)] leading-tight font-semibold tracking-tight';
 
   const stateClasses = square.isFreeSpace
     ? isWinning
@@ -33,7 +33,7 @@ export function BingoSquare({
       : isHovered
         ? 'bg-snow border-ink text-ink active:scale-95 active:bg-frost'
         : isHint
-          ? 'bg-frost/50 border-pine/50 text-ink active:scale-95'
+          ? 'bg-snow border-dashed border-pine text-ink active:scale-95'
           : 'bg-snow border-ink/40 text-ink active:scale-95 active:bg-frost';
 
   const hoverClasses =
@@ -77,11 +77,11 @@ export function BingoSquare({
           <span className="font-display text-xs mt-0.5 drop-shadow-[1px_1px_0_var(--color-ink)]">{square.text}</span>
         </>
       ) : (
-        <span className="wrap-break-word hyphens-auto">{square.text}</span>
+        <span className="wrap-anywhere">{square.text}</span>
       )}
       {square.isMarked && !square.isFreeSpace && (
         <span
-          className="animate-pop absolute -top-1.5 -right-1.5 w-5 h-5 grid place-items-center rounded-full bg-berry border-2 border-ink text-snow text-[10px]"
+          className="animate-pop absolute -top-2 -right-2 z-10 w-4 h-4 grid place-items-center rounded-full bg-berry border-2 border-ink text-snow text-[8px] leading-none"
           aria-hidden="true"
         >
           ★

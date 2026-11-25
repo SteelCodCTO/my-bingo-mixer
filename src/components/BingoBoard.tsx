@@ -17,7 +17,7 @@ export function BingoBoard({ board, winningSquareIds, onSquareClick }: BingoBoar
   );
 
   return (
-    <div className="grid grid-cols-5 gap-1.5 w-full max-w-md mx-auto aspect-square p-2 bg-frost border-2 border-ink rounded-2xl hard-shadow">
+    <div className="@container grid grid-cols-5 gap-1.5 w-full max-w-md mx-auto aspect-square p-2 bg-frost border-2 border-ink rounded-2xl hard-shadow">
       {board.map((square) => (
         <BingoSquare
           key={square.id}
